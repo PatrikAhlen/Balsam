@@ -1,0 +1,632 @@
+openapi: '3.0.2'
+info:
+  title: BalsamApi
+  version: '2.0'
+  description: This is the API for createing Baslam artifcats.
+
+servers:
+  - url: http://balsam-api.balsam-system.svc.cluster.local/api/v1
+
+tags:
+  - name: Project
+    description:  User methods
+  - name: Workspace
+    description: A workspace for the project
+  - name: KnowledgeLibrary
+    description: Knowledge library 
+
+paths:
+  /projects:
+    get:
+      tags: 
+        - Project
+      operationId: ListProjects
+      description: Gets a list of all available projects
+      parameters:
+        - name: all
+          in: query
+          description: If all projects should be returened or only projects that the user has assess rights too
+          required: false
+          schema:
+            type: boolean
+            default: true 
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'  
+    post:
+      tags: 
+        - Project
+      operationId: CreateProject
+      description: Creates a new project
+      requestBody:
+        description: Definition of a new project
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequest'                     
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectCreatedResponse'
+
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+
+  /projects/{projectId}:
+    get:
+      tags: 
+        - Project
+      operationId: GetProject
+      description: Gets project information
+      parameters:
+        - name: projectId
+          in: path
+          description: the identity of the project.
+          required: true
+          schema:
+            type: string      
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400' 
+
+  /projects/{projectId}/branches:
+    post:
+      tags: 
+        - Project
+      operationId: CreateBranch
+      description: Create a new branch for a project
+      parameters:
+        - name: projectId
+          in: path
+          description: the identity of the project.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Definition of a new branch
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBranchRequest'              
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchCreatedResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'    
+  /projects/{projectId}/branches/{branchId}/files:
+    get:
+      tags: 
+        - Project
+      operationId: GetFiles
+      description: Get files for a branch for a project
+      parameters:
+        - name: projectId
+          in: path
+          description: the identity of the project.
+          required: true
+          schema:
+            type: string
+        - name: branchId
+          in: path
+          description: The identity of the branch.
+          required: true
+          schema:
+            type: string           
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileListResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+
+  /workspaces:
+    post:
+      tags: 
+        - Workspace
+      operationId: CreateWorkspace
+      description: Create a new workspace
+      requestBody:
+        description: Definition of a new workspace
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkspaceRequest'                 
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceCreatedResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+    get:
+      tags: 
+        - Workspace
+      operationId: GetWorkspace
+      description: Get workspaces      
+      parameters:
+        - name: projectId
+          in: query
+          description: id for the project
+          required: false
+          schema:
+            type: string
+        - name: branchId
+          in: query
+          description: id for the branch
+          required: false
+          schema:
+            type: string  
+        - name: all
+          in: query
+          description: If all workspaces should be returened or only workspaces that the user has assess rights too
+          required: false
+          schema:
+            type: boolean
+            default: true                
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceListResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+  /workspaces/{workspaceId}:
+    delete:
+      tags: 
+        - Workspace
+      operationId: DeleteWorkspace
+      description: Delete workspace
+      parameters:
+        - name: workspaceId
+          in: path
+          description: id id for the workspace
+          required: true
+          schema:
+            type: string          
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+
+  /templates:
+    get:
+      tags: 
+        - Workspace
+      operationId: ListTemplates
+      description: List available workspace templates
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplatesListResponse'
+
+  /knowledge-libraries:
+    get:
+      tags: 
+        - KnowledgeLibrary
+      operationId: ListKnowledgeLibaries
+      description: List available knowledge Libraries
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeLibraryListResponse'
+    post:
+      tags: 
+        - Workspace
+      operationId: CreateKnowledgeLibrary
+      description: Create a new connection to a knowledge library
+      requestBody:
+        description: Definition of a new Knowledge library connection
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateKnowledgeLibraryRequest'                 
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeLibraryCreatedResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+
+  /knowledge-libraries/{libraryId}:
+    delete:
+      tags: 
+        - KnowledgeLibrary
+      operationId: DeleteKnowledgeLibary
+      description: Removes knowledge library
+      parameters:
+        - name: libraryId
+          in: path
+          description: id for the knowledge library
+          required: true
+          schema:
+            type: string  
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+
+components:
+  schemas:
+    CreateProjectRequest:
+      type: object
+      description: Payload for creating new project
+      required:
+        - "name"
+        - "branchName"
+      properties:
+        name:
+          type: string
+          description: The name
+        description:
+          type: string
+          description: The description of the project
+        branchName:
+          type: string
+          description: Name of the default branch
+
+    CreateBranchRequest:
+      type: object
+      description: Payload for creating new branch
+      required:
+        - "name"
+      properties:
+        name:
+          type: string
+          description: The name of the branch
+        description:
+          type: string
+          description: The description of the branch
+        fromBranch:
+          type: string
+          description: The branch from which this branch will be created. The default branch for the project will be used if not specified.
+          
+    CreateWorkspaceRequest:
+      type: object
+      description: Payload for creating new branch
+      required:
+        - "name"
+        - "templateId"
+        - "projectId"
+        - "branchId"
+      properties:
+        name:
+          type: string
+          description: The name of the workspace
+        templateId:
+          type: string
+          description: The id of the template  
+        projectId:
+          type: string
+          description: The id of the project
+        branchId:
+          type: string
+          description: The id of the branch
+
+    CreateKnowledgeLibraryRequest:
+      type: object
+      description: Payload for creating new branch
+      required:
+        - "name"
+        - "repositoryUrl"
+      properties:
+        name:
+          type: string
+          description: The name of the knowledge library
+        description:
+          type: string
+          description: The desciption of the knowledge library 
+        repositoryUrl:
+          type: string
+          description: The url to the git repository
+
+    ProjectResponse:
+      type: object
+      description: Project created response
+      required:
+        - "id"
+        - "name"
+        - "gitUrl"
+      allOf:
+        - $ref: '#/components/schemas/Project'
+      properties:
+        gitUrl:
+          type: string
+          description: URL to the git repository
+    
+    ProjectCreatedResponse:
+      type: object
+      description: Project created response
+      required:
+        - "id"
+        - "name"
+      properties:
+        id:
+          type: string
+          description: The identifier
+        name:
+          type: string
+          description: The name
+
+    BranchCreatedResponse:
+      type: object
+      description: Branch created response
+      required:
+        - "id"
+        - "projectId"
+        - "name"
+      properties:
+        id:
+          type: string
+          description: The identifier
+        projectId:
+          type: string
+          description: The identifier for the project
+        name:
+          type: string
+          description: The branch name
+
+    WorkspaceCreatedResponse:
+      type: object
+      description: Branch created response
+      required:
+        - "id"
+        - "projectId"
+        - "branchId"
+        - "name"
+      properties:
+        id:
+          type: string
+          description: The identifier
+        projectId:
+          type: string
+          description: The identifier for the project
+        branchId:
+          type: string
+          description: The identifier for the branch
+        name:
+          type: string
+          description: The branch name
+
+    KnowledgeLibraryCreatedResponse:
+      type: object
+      description: Connection to a knowledge library created response
+      required:
+        - "id"
+        - "name"
+      properties:
+        id:
+          type: string
+          description: The identifier
+        name:
+          type: string
+          description: The name of the knowledge library
+
+    FileListResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/File' 
+
+    File:
+      type: object
+      description: File information
+      required:
+        - "id"
+        - "name"
+      properties:
+        path:
+          type: string
+          description: The full relative path 
+        name:
+          type: string
+          description: The name
+        type:
+          type: string
+          description: Description of the template
+          enum:
+            - File
+            - Folder
+        contentUrl:
+          type: string
+          description: Url to the raw content of the file
+
+    WorkspaceListResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Workspace'
+
+
+    TemplatesListResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Template' 
+    
+    KnowledgeLibraryListResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/KnowledgeLibrary' 
+    
+    KnowledgeLibrary:
+      type: object
+      description: Information about a knowledge library
+      required:
+        - "id"
+        - "name"
+      properties:
+        id:
+          type: string
+          description: The identifier
+        name:
+          type: string
+          description: The name
+        description:
+          type: string
+          description: Description of the knowledge library
+
+    Template:
+      type: object
+      description: Workspace template
+      required:
+        - "id"
+        - "name"
+      properties:
+        id:
+          type: string
+          description: The identifier
+        name:
+          type: string
+          description: The name
+        description:
+          type: string
+          description: Description of the template
+         
+    ProjectListResponse:
+      type: object
+      properties:
+        projects:         
+          type: array
+          items: 
+            $ref: '#/components/schemas/Project' 
+    
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The identifier
+        name:
+          type: string
+          description: The name
+        description:
+          type: string
+          description: Description of the project
+        branches:         
+          type: array
+          items: 
+            $ref: '#/components/schemas/Branch' 
+
+    Branch:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The identifier
+        name:
+          type: string
+          description: The name
+        description:
+          type: string
+          description: Description of the branch
+        IsDefault:
+          type: boolean
+          description: If the branch is the default branch of the project
+
+
+    Workspace:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The identifier
+        name:
+          type: string
+          description: The name
+        templateId:
+          type: string
+          description: The id of the template that the workspace is based on.
+        projectId:
+          type: string
+          description: The id of the project
+        branchId:
+          type: string
+          description: The id of the branch
+
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+          description: |
+            An absolute URI that identifies the problem type.  When dereferenced,
+            it SHOULD provide human-readable documentation for the problem type
+            (e.g., using HTML).
+          default: about:blank
+          example: https://zalando.github.io/problem/constraint-violation
+        title:
+          type: string
+          description: |
+            A short, summary of the problem type. Written in english and readable
+            for engineers (usually not suited for non technical stakeholders and
+            not localized); example: Service Unavailable
+        status:
+          type: integer
+          format: int32
+          description: |
+            The HTTP status code generated by the origin server for this occurrence
+            of the problem.
+          minimum: 100
+          maximum: 600
+          exclusiveMaximum: true
+          example: 503
+        detail:
+          type: string
+          description: |
+            A human readable explanation specific to this occurrence of the
+            problem.
+          example: Connection to database timed out
+        instance:
+          type: string
+          format: uri
+          description: |
+            An absolute URI that identifies the specific occurrence of the problem.
+            It may or may not yield further information if dereferenced.
+                  
+  responses:
+    ErrorResponse400:
+      description: Error respsone for 400
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            title: Bad Request
+            status: 400
+            detail: Generic error
+ 
